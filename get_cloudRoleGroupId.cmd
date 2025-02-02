@@ -6,16 +6,16 @@ echo Getting Cloud Role Group ID.
 echo.
 
 REM Read TOKEN
-set "TOKEN_FILE=%~dp0token"
+set "TOKEN_FILE=%~dp0\data\token"
 for /f "delims=" %%A in (%TOKEN_FILE%) do (
     set "TOKEN=%%A"
 )
 
 REM Open the file for reading
-set "PROVIDER_ACCOUNT_ID_FILE=%~dp0providerAccountIds"
+set "PROVIDER_ACCOUNT_ID_FILE=%~dp0\data\providerAccountIds"
 
 REM Create a file
-set "CLOUD_ROLE_GROUP_ID_FILE=%~dp0cloudRoleGroupIds"
+set "CLOUD_ROLE_GROUP_ID_FILE=%~dp0\data\cloudRoleGroupIds"
 if exist "%CLOUD_ROLE_GROUP_ID_FILE%" (
     del "%CLOUD_ROLE_GROUP_ID_FILE%"
 ) else (

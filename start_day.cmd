@@ -16,7 +16,7 @@ if not "!TOKEN!"=="" (
 	echo.
 
 	REM Create a token file
-	set "TOKEN_FILE=%~dp0token"
+	set "TOKEN_FILE=%~dp0\data\token"
 	
 	if exist !TOKEN_FILE! (
 		del !TOKEN_FILE!
@@ -31,7 +31,7 @@ if not "!TOKEN!"=="" (
 
 REM Unique task name
 set "TASK_NAME=UpdateCredentialsToday"
-set "SCRIPT_PATH=%~dp0update_credentials.cmd"
+set "SCRIPT_PATH=%~dp0\data\update_credentials.cmd"
 
 REM Delete the task if it already exists (in case of a rerun)
 schtasks /delete /tn "%TASK_NAME%" /f >nul 2>&1

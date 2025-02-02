@@ -6,7 +6,7 @@ echo Getting Provider Account ID.
 echo.
 
 REM Read TOKEN
-set "TOKEN_FILE=%~dp0token"
+set "TOKEN_FILE=%~dp0\data\token"
 for /f "delims=" %%A in (%TOKEN_FILE%) do (
     set "TOKEN=%%A"
 )
@@ -24,10 +24,10 @@ REM Escape quotes
 set JSON_ESCAPED=!JSON:"=\"!
 
 REM Open the file for reading
-set "CLOUDS_FILE=%~dp0clouds"
+set "CLOUDS_FILE=%~dp0\data\clouds"
 
 REM Create a file
-set "PROVIDER_ACCOUNT_ID_FILE=%~dp0providerAccountIds"
+set "PROVIDER_ACCOUNT_ID_FILE=%~dp0\data\providerAccountIds"
 if exist "%PROVIDER_ACCOUNT_ID_FILE%" (
     del "%PROVIDER_ACCOUNT_ID_FILE%"
 ) else (

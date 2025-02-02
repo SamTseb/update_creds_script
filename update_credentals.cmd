@@ -1,8 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
 
-call %~dp0get_providerAccountId.cmd
-call %~dp0get_cloudRoleGroupId.cmd
+call %~dp0\data\get_providerAccountId.cmd
+call %~dp0\data\get_cloudRoleGroupId.cmd
 
 echo.
 echo Updating credentials.
@@ -11,14 +11,14 @@ echo.
 set "CREDS_FILE=%USERPROFILE%\.aws\credentials"
 
 REM Read TOKEN
-set "TOKEN_FILE=%~dp0token"
+set "TOKEN_FILE=%~dp0\data\token"
 for /f "delims=" %%A in (%TOKEN_FILE%) do (
     set "TOKEN=%%A"
 )
 
 REM Open files for reading
-set "CLOUD_ROLE_GROUP_ID_FILE=%~dp0cloudRoleGroupIds"
-set "CLOUD_FILE=%~dp0clouds"
+set "CLOUD_ROLE_GROUP_ID_FILE=%~dp0\data\cloudRoleGroupIds"
+set "CLOUD_FILE=%~dp0\data\clouds"
 
 set INDEX=0
 

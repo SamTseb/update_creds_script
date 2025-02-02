@@ -6,7 +6,7 @@ echo Getting clouds.
 echo.
 
 REM Read TOKEN
-set "TOKEN_FILE=%~dp0token"
+set "TOKEN_FILE=%~dp0\data\token"
 for /f "delims=" %%A in (%TOKEN_FILE%) do (
     set "TOKEN=%%A"
 )
@@ -25,7 +25,7 @@ for /f "delims=" %%A in ('powershell -Command "$data = ConvertFrom-Json -InputOb
 )
 
 REM Create a file
-set "CLOUDS_FILE=%~dp0clouds"
+set "CLOUDS_FILE=%~dp0\data\clouds"
 if exist "%CLOUDS_FILE%" (
     del "%CLOUDS_FILE%"
 ) else (
