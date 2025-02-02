@@ -8,20 +8,20 @@ echo.
 echo Please, put your JWT or leave it empty 
 echo if you want to use the current one:
 echo.
-for /f "delims=" %%A in ('powershell -Command "$input = Read-Host; $input"') do set "JWT_TOKEN=%%A"
+for /f "delims=" %%A in ('powershell -Command "$input = Read-Host; $input"') do set "TOKEN=%%A"
 echo.
 
-if not "!JWT_TOKEN!"=="" (
+if not "!TOKEN!"=="" (
 	echo Update Token.
 	echo.
 
-	REM REM Создаем файл
+	REM Create a token file
 	set "TOKEN_FILE=%~dp0token"
 	
 	if exist !TOKEN_FILE! (
 		del !TOKEN_FILE!
 	) else (
-		echo !JWT_TOKEN! > !TOKEN_FILE!
+		echo !TOKEN! > !TOKEN_FILE!
 	)
 
 	echo Token is updated.
@@ -29,17 +29,17 @@ if not "!JWT_TOKEN!"=="" (
 	echo Continue with current JWT Token.
 )
 
-REM Уникальное имя задачи
+REM Unique task name
 set "TASK_NAME=UpdateCredentialsToday"
 set "SCRIPT_PATH=%~dp0update_credentials.cmd"
 
-REM Удаляем задачу, если она уже существует (на случай повторного запуска)
+REM Delete the task if it already exists (in case of a rerun)
 schtasks /delete /tn "%TASK_NAME%" /f >nul 2>&1
 
-REM Создаём новую задачу с повторением каждые 3.5 часа
+REM Create a new task with a repeat interval of every 3.5 hours
 schtasks /create /tn "%TASK_NAME%" /tr "%SCRIPT_PATH%" /sc hourly /mo 3 /st 08:00 /sd %DATE% /f
 
-REM Удаляем задачу после 23:00
+REM Delete the task after 11:00 PM
 schtasks /create /tn "Remove_%TASK_NAME%" /tr "schtasks /delete /tn %TASK_NAME% /f" /sc once /st 23:00 /sd %DATE% /f
 
 

@@ -10,15 +10,14 @@ echo.
 
 set "CREDS_FILE=%USERPROFILE%\.aws\credentials"
 
-REM Читаем JWT_TOKEN
+REM Read TOKEN
 set "TOKEN_FILE=%~dp0token"
 for /f "delims=" %%A in (%TOKEN_FILE%) do (
-    set "JWT_TOKEN=%%A"
+    set "TOKEN=%%A"
 )
 
-REM Берём файл на чтение
+REM Open files for reading
 set "CLOUD_ROLE_GROUP_ID_FILE=%~dp0cloudRoleGroupIds"
-REM Берём файл на чтение
 set "CLOUD_FILE=%~dp0clouds"
 
 set INDEX=0
@@ -35,24 +34,24 @@ for /f "delims=" %%B in (!CLOUD_ROLE_GROUP_ID_FILE!) do (
 	)
 	set SECTION=[!SECTION_NAME!]
 	
-	REM Выполняем POST-запрос с телом и сохраняем JSON в переменную
+	REM Make a POST request with a body and save the JSON to a variable
 	for /f "delims=" %%A in ('curl --silent --silent --request POST \
-	  --url https://api.cs.telekom.de/public/v1/credentials \
-	  --header "Authorization:!JWT_TOKEN! " --header "content-type: application/json" \
+	  --url https://api.com/public/v1/credentials \
+	  --header "Authorization:!TOKEN! " --header "content-type: application/json" \
 	  --data "{ \"generateLink\": false, \"cloudRoleGroupId\": !CLOUD_ROLE_GROUP_ID! }"') do set JSON=%%A
 	  
 	REM echo === JSON ===
 	REM echo !JSON!
 	REM echo =======================
 
-	REM Экранировать кавычки
+	REM Escape quotes
 	set JSON_ESCAPED=!JSON:"=\"!
 	
 	REM echo === JSON_ESCAPED ===
 	REM echo !JSON_ESCAPED!
 	REM echo =======================
 
-	REM Парсим JSON_ESCAPED с помощью PowerShell
+	REM Parse JSON_ESCAPED using PowerShell
 	for /f "delims=" %%A in ('powershell -Command "$data = ConvertFrom-Json -InputObject '!JSON_ESCAPED!'; $data.sessionId"') do set AWS_ACCESS_KEY_ID_NEW=%%A
 	for /f "delims=" %%A in ('powershell -Command "$data = ConvertFrom-Json -InputObject '!JSON_ESCAPED!'; $data.sessionKey"') do set AWS_SECRET_ACCESS_KEY_NEW=%%A
 	for /f "delims=" %%A in ('powershell -Command "$data = ConvertFrom-Json -InputObject '!JSON_ESCAPED!'; $data.sessionToken"') do set AWS_SESSION_TOKEN_NEW=%%A
@@ -63,48 +62,48 @@ for /f "delims=" %%B in (!CLOUD_ROLE_GROUP_ID_FILE!) do (
 	REM echo AWS_SESSION_TOKEN_NEW=!AWS_SESSION_TOKEN_NEW!
 	REM echo =======================
 
-	REM Создаем временный файл
+	REM Create temporary file
 	set "TEMP_FILE=!CREDS_FILE!.tmp"
 	if exist "!TEMP_FILE!" del "!TEMP_FILE!"
 
-	REM Флаги для определения нужного блока в файле
+	REM Flags for identifying the required block in the file
 	set "IN_SECTION=0"
 	set "LAST_LINE_WAS_EMPTY=1"
 
-	REM Читаем creds построчно и заменяем нужные строки
+	REM Read creds line by line and replace the necessary lines
 	for /f "delims=" %%A in (!CREDS_FILE!) do (
 		set "LINE=%%A"
 
-		REM Если строка пуста - запомним
+		REM If the line is empty, remember it
 		if "!LINE!"=="" set "LAST_LINE_WAS_EMPTY=1"
 		
-		REM Если строка начинается с [, значит, это новая секция
+		REM If the line starts with [, it means it's a new section
 		if "!LINE:~0,1!"=="[" (
-			REM Добавляем пустую строку перед секцией
+			REM Add an empty line before the section
 			if !LAST_LINE_WAS_EMPTY! == 0 (
 				echo/>>"!TEMP_FILE!"
 			)
 			set "LAST_LINE_WAS_EMPTY=0"
-			REM Определяем начало секции DTIT_DevT-Magic_Dev
+			REM Determine the start of the section
 			if "!LINE!"=="!SECTION!" (
 				set "IN_SECTION=1"
 			)
 		)
 
-		REM Если в секции - заменяем нужные строки
+		REM If in the section, replace the necessary lines
 		if !IN_SECTION! == 1 (
 			if "!LINE:aws_access_key_id=!" NEQ "!LINE!" set "LINE=aws_access_key_id=!AWS_ACCESS_KEY_ID_NEW!"
 			if "!LINE:aws_secret_access_key=!" NEQ "!LINE!" set "LINE=aws_secret_access_key=!AWS_SECRET_ACCESS_KEY_NEW!"
 			if "!LINE:aws_session_token=!" NEQ "!LINE!" set "LINE=aws_session_token=!AWS_SESSION_TOKEN_NEW!"
 		)
 
-		REM Определяем конец секции (следующая [секция])
+		REM Determine the end of the section
 		if "!LINE:~0,1!"=="[" if not "!LINE!"=="!SECTION!" set "IN_SECTION=0"
 
 		echo/!LINE!>>"!TEMP_FILE!"
 	)
 
-	REM Заменяем старый файл новым
+	REM Replace the old file with the new one
 	move /y "!TEMP_FILE!" "!CREDS_FILE!" >nul
 )
 

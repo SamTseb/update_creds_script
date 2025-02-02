@@ -5,28 +5,28 @@ echo.
 echo Getting Provider Account ID.
 echo.
 
-REM Читаем JWT_TOKEN
+REM Read TOKEN
 set "TOKEN_FILE=%~dp0token"
 for /f "delims=" %%A in (%TOKEN_FILE%) do (
-    set "JWT_TOKEN=%%A"
+    set "TOKEN=%%A"
 )
 
-REM Выполняем POST-запрос с телом и сохраняем JSON в переменную
+REM Make a POST request with a body and save the JSON to a variable
 for /f "delims=" %%A in ('curl --silent --request GET \
-  --url https://api.cs.telekom.de/public/v1/environment \
-  --header "Authorization: !JWT_TOKEN!"') do set JSON=%%A
+  --url https://api.com/public/v1/environment \
+  --header "Authorization: !TOKEN!"') do set JSON=%%A
   
 REM echo/
 REM echo %JSON%
 REM echo/
 
-REM Экранировать кавычки
+REM Escape quotes
 set JSON_ESCAPED=!JSON:"=\"!
 
-REM Берём файл на чтение
+REM Open the file for reading
 set "CLOUDS_FILE=%~dp0clouds"
 
-REM Создаем файл
+REM Create a file
 set "PROVIDER_ACCOUNT_ID_FILE=%~dp0providerAccountIds"
 if exist "%PROVIDER_ACCOUNT_ID_FILE%" (
     del "%PROVIDER_ACCOUNT_ID_FILE%"
@@ -42,7 +42,7 @@ for /f "delims=" %%B in (!CLOUDS_FILE!) do (
 	)
 )
 
-REM Выводим NEEDED_CLOUDS
+REM Output NEEDED_CLOUDS
 echo/
 echo === PROVIDER_ACCOUNT_IDS ===
 type !PROVIDER_ACCOUNT_ID_FILE!

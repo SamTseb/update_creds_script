@@ -5,26 +5,26 @@ echo.
 echo Getting clouds.
 echo.
 
-REM Читаем JWT_TOKEN
+REM Read TOKEN
 set "TOKEN_FILE=%~dp0token"
 for /f "delims=" %%A in (%TOKEN_FILE%) do (
-    set "JWT_TOKEN=%%A"
+    set "TOKEN=%%A"
 )
 
-:: Выполняем POST-запрос с телом и сохраняем JSON в переменную
+REM  Send POST-request and save a JSON response
 for /f "delims=" %%A in ('curl --silent --request GET \
-  --url https://api.cs.telekom.de/public/v1/environment \
-  --header "Authorization: !JWT_TOKEN!"') do set JSON=%%A
+  --url https://api.com/public/v1/environment \
+  --header "Authorization: !TOKEN!"') do set JSON=%%A
 
-REM Экранировать кавычки
+REM Escape quotes
 set JSON_ESCAPED=!JSON:"=\"!
 
-REM Парсим JSON_ESCAPED с помощью PowerShell
+REM Parse Json_ESCAPED using PowerShell
 for /f "delims=" %%A in ('powershell -Command "$data = ConvertFrom-Json -InputObject '%JSON_ESCAPED%'; $cloudNames = $data | ForEach-Object { $_.cloudName }; $cloudNames -join ','"') do (
 	set CLOUD_NAMES=%%A
 )
 
-REM Создаем файл
+REM Create a file
 set "CLOUDS_FILE=%~dp0clouds"
 if exist "%CLOUDS_FILE%" (
     del "%CLOUDS_FILE%"
@@ -49,8 +49,8 @@ for %%A in (!CLOUD_NAMES!) do (
 		echo/=======================
 )
 
-REM Для дебага: выводим NEEDED_CLOUDS
-echo/
+REM Output NEEDED_CLOUDS
+echo.
 echo === NEEDED_CLOUDS ===
 type !CLOUDS_FILE!
 echo =======================
